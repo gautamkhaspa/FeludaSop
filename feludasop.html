@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light" />
+<title>Feluda Website Audit Tool — Internal SOP</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --surface:#ffffff;
+    --surface-2:#f8fafc;
+    --text:#101828;
+    --muted:#667085;
+    --line:#e4e7ec;
+    --blue:#2563eb;
+    --blue-2:#1d4ed8;
+    --blue-3:#60a5fa;
+    --blue-soft:#eff6ff;
+    --green:#16a34a;
+    --green-soft:#ecfdf3;
+    --amber:#d97706;
+    --amber-soft:#fff7ed;
+    --red:#dc2626;
+    --red-soft:#fff1f2;
+    --violet:#7c3aed;
+    --violet-soft:#f5f3ff;
+    --nav:#0b1220;
+    --shadow:0 14px 40px rgba(16,24,40,.07);
+    --shadow-lg:0 24px 60px rgba(15,23,42,.16);
+    --radius:22px;
+    --radius-sm:14px;
+    --max:1240px;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%,rgba(37,99,235,.08),transparent 28rem),
+      linear-gradient(180deg,#fbfdff 0,#f5f7fb 420px,#f5f7fb 100%);
+    color:var(--text);
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  body.menu-open{overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit}
+  img,svg{display:block;max-width:100%;height:auto}
+  ::selection{background:#dbeafe;color:#1e3a8a}
+
+  .page{
+    min-height:100vh;
+  }
+
+  /* ---------- Top navigation ---------- */
+  .site-header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    background:rgba(255,255,255,.82);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(228,231,236,.85);
+  }
+  .nav-wrap{
+    max-width:var(--max);
+    margin:auto;
+    padding:12px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:0;
+  }
+  .logo-placeholder{
+    width:42px;height:42px;flex:0 0 42px;
+    border-radius:13px;
+    background:linear-gradient(135deg,#111827,#2563eb);
+    display:grid;
+    place-items:center;
+    color:#fff;
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:.04em;
+    box-shadow:0 8px 18px rgba(37,99,235,.22);
+  }
+  .brand strong{display:block;font-size:15px;line-height:1.2}
+  .brand span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  .desktop-nav{
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .desktop-nav a{
+    padding:9px 11px;
+    border-radius:10px;
+    color:#475467;
+    font-size:13px;
+    font-weight:700;
+    transition:.2s ease;
+  }
+  .desktop-nav a:hover,
+  .desktop-nav a.active{
+    color:var(--blue);
+    background:var(--blue-soft);
+  }
+  .header-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .role-chip{
+    padding:8px 11px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:#475467;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .menu-btn{
+    display:none;
+    width:42px;height:42px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--text);
+    cursor:pointer;
+    place-items:center;
+  }
+
+  /* ---------- Mobile drawer ---------- */
+  .drawer{
+    position:fixed;
+    inset:0 auto 0 0;
+    width:min(86vw,340px);
+    background:#fff;
+    z-index:1200;
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    box-shadow:22px 0 55px rgba(15,23,42,.18);
+    padding:18px;
+    overflow:auto;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{
+    display:flex;align-items:center;justify-content:flex-end;gap:10px;
+    padding-bottom:12px;border-bottom:1px solid var(--line);
+  }
+  .drawer-close{
+    width:38px;height:38px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer
+  }
+  .drawer-nav{padding-top:14px}
+  .drawer-group + .drawer-group{margin-top:18px}
+  .drawer-group-label{
+    padding:0 10px 7px;color:#98a2b3;font-size:10px;font-weight:900;
+    letter-spacing:.08em;text-transform:uppercase
+  }
+  .drawer-nav a{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 10px;border-radius:10px;color:#475467;font-size:14px;font-weight:700
+  }
+  .drawer-nav a:hover,.drawer-nav a.active{background:var(--blue-soft);color:var(--blue)}
+  .drawer-num{
+    width:28px;height:28px;border-radius:8px;background:#f2f4f7;display:grid;place-items:center;font-size:11px
+  }
+  .drawer-backdrop{
+    position:fixed;inset:0;background:rgba(15,23,42,.42);backdrop-filter:blur(2px);z-index:1190;
+    opacity:0;pointer-events:none;transition:.2s ease;
+  }
+  .drawer-backdrop.show{opacity:1;pointer-events:auto}
+
+  main{padding:28px 22px 70px}
+  .container{max-width:var(--max);margin:auto}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    border-radius:30px;
+    background:
+      radial-gradient(circle at 82% 10%,rgba(96,165,250,.32),transparent 24rem),
+      linear-gradient(135deg,#0b1220 0%,#112247 52%,#16407e 100%);
+    color:#fff;
+    box-shadow:var(--shadow-lg);
+    min-height:0;
+    display:block;
+    padding:52px;
+    isolation:isolate;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:auto auto -110px -80px;
+    width:320px;height:320px;border-radius:50%;
+    background:radial-gradient(circle,rgba(37,99,235,.24),transparent 66%);
+  }
+  .hero-copy{position:relative;z-index:2}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 11px;border-radius:999px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    color:#dbeafe;
+    font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  }
+  .hero h1{
+    margin:18px 0 14px;
+    max-width:780px;
+    font-size:clamp(40px,5vw,68px);
+    line-height:1.02;
+    letter-spacing:-.045em;
+  }
+  .hero p{
+    margin:0;
+    max-width:780px;
+    color:#d8e4f3;
+    font-size:18px;
+  }
+  .hero-actions{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:24px
+  }
+  .btn{
+    border:0;
+    cursor:pointer;
+    padding:11px 15px;
+    border-radius:12px;
+    font-weight:800;
+    font-size:13px;
+    transition:.2s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn.primary{background:#fff;color:#14213d}
+  .btn.primary:hover{transform:translateY(-2px)}
+  .btn.ghost{
+    background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14)
+  }
+  .btn.ghost:hover{background:rgba(255,255,255,.12)}
+
+  .metrics{
+    margin-top:28px;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+  }
+  .metric{
+    padding:16px;
+    border-radius:16px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:blur(8px);
+  }
+  .metric strong{display:block;font-size:25px;line-height:1.15}
+  .metric span{display:block;color:#dbe6f5;font-size:12px;margin-top:3px}
+
+  .hero-visual{
+    position:relative;
+    z-index:2;
+    min-height:420px;
+    display:grid;
+    place-items:center;
+  }
+  .visual-shell{
+    width:min(100%,480px);
+    border-radius:26px;
+    padding:22px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 24px 50px rgba(0,0,0,.18);
+    backdrop-filter:blur(14px);
+    transform:rotate(1.5deg);
+  }
+  .visual-top{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px
+  }
+  .traffic{display:flex;gap:6px}
+  .traffic i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35)}
+  .mini-chip{font-size:10px;font-weight:800;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.1);color:#dbeafe}
+  .scanner{
+    position:relative;
+    height:260px;
+    border-radius:18px;
+    background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.045));
+    overflow:hidden;
+    padding:18px;
+  }
+  .scan-line{
+    position:absolute;left:12px;right:12px;top:18px;height:2px;
+    background:linear-gradient(90deg,transparent,#60a5fa,transparent);
+    box-shadow:0 0 18px #60a5fa;
+    animation:scan 3.8s ease-in-out infinite;
+  }
+  @keyframes scan{
+    0%,100%{transform:translateY(0);opacity:.5}
+    50%{transform:translateY(212px);opacity:1}
+  }
+  .scan-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px
+  }
+  .scan-card{
+    min-height:92px;border-radius:14px;padding:12px;background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.09)
+  }
+  .scan-card strong{display:block;font-size:12px}
+  .scan-card span{display:block;font-size:10px;color:#c9d6e8;margin-top:4px}
+  .scan-card.real{border-left:3px solid #22c55e}
+  .scan-card.check{border-left:3px solid #f59e0b}
+  .scan-card.fix{border-left:3px solid #60a5fa}
+  .scan-card.learn{border-left:3px solid #a78bfa}
+  .magnifier{
+    position:absolute;
+    right:-16px;
+    bottom:-24px;
+    width:124px;height:124px;border-radius:50%;
+    border:16px solid rgba(255,255,255,.92);
+    box-shadow:0 12px 34px rgba(0,0,0,.2);
+    animation:float 4.2s ease-in-out infinite;
+  }
+  .magnifier::before{
+    content:"";
+    position:absolute;
+    width:54px;height:16px;border-radius:10px;
+    background:rgba(255,255,255,.92);
+    right:-42px;bottom:-16px;transform:rotate(42deg);
+  }
+  .magnifier::after{
+    content:"✓";
+    position:absolute;inset:0;display:grid;place-items:center;color:#86efac;font-size:42px;font-weight:900;
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0) rotate(-3deg)}
+    50%{transform:translateY(-10px) rotate(2deg)}
+  }
+
+  /* ---------- Section defaults ---------- */
+  .section{
+    margin-top:26px;
+    padding:30px;
+    border-radius:24px;
+    background:#fff;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    scroll-margin-top:24px;
+  }
+  .section-head{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px
+  }
+  .title-group{min-width:0}
+  .title-line{display:flex;align-items:center;gap:12px}
+  .section-no{
+    width:36px;height:36px;flex:0 0 36px;
+    border-radius:11px;
+    background:var(--blue);
+    color:#fff;
+    display:grid;place-items:center;
+    font-weight:900;font-size:14px;
+  }
+  .section h2{margin:0;font-size:25px;line-height:1.2;letter-spacing:-.02em}
+  .section-sub{margin:7px 0 0 48px;color:var(--muted);font-size:14px}
+  .team-tag{
+    padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap
+  }
+  .team-tag.builder{background:var(--blue-soft);color:var(--blue-2)}
+  .team-tag.reviewer{background:var(--violet-soft);color:var(--violet)}
+  .team-tag.both{background:var(--green-soft);color:#15803d}
+
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+
+  .card{
+    padding:19px;
+    border:1px solid var(--line);
+    border-radius:17px;
+    background:#fff;
+    transition:.22s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px rgba(16,24,40,.08);
+    border-color:#d6deea;
+  }
+  .icon-box{
+    width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+    background:var(--blue-soft);color:var(--blue);font-weight:900;margin-bottom:13px
+  }
+  .card h3{margin:0 0 7px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+
+  .callout{
+    margin-top:16px;
+    padding:16px 18px;
+    border-radius:15px;
+    background:#f6faff;
+    border:1px solid #dbeafe;
+    border-left:4px solid var(--blue);
+    color:#334155;
+    font-size:14px;
+  }
+  .callout.warn{background:var(--amber-soft);border-color:#fed7aa;border-left-color:var(--amber);color:#9a3412}
+  .callout.success{background:var(--green-soft);border-color:#bbf7d0;border-left-color:var(--green);color:#166534}
+
+  /* ---------- Process illustration ---------- */
+  .process-layout{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:20px;
+    align-items:stretch;
+  }
+  .process-flow{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+  }
+  .process-node{
+    position:relative;
+    padding:17px;
+    min-height:118px;
+    border-radius:16px;
+    background:#fff;
+    border:1px solid var(--line);
+  }
+  .process-node::after{
+    content:"→";
+    position:absolute;
+    right:-11px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#98a2b3;
+    font-weight:900;
+    z-index:2;
+  }
+  .process-node:nth-child(4n)::after,
+  .process-node:last-child::after{display:none}
+  .process-node strong{display:block;font-size:13px;margin-top:10px}
+  .process-node span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+  .process-icon{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f2f4f7;color:#475467;font-weight:900
+  }
+  .loop-visual{
+    border-radius:18px;
+    padding:22px;
+    background:linear-gradient(160deg,#eff6ff,#f8fafc);
+    border:1px solid #dbeafe;
+    display:grid;
+    place-items:center;
+    min-height:250px;
+  }
+  .loop-wheel{
+    position:relative;
+    width:210px;height:210px;border-radius:50%;
+    border:18px solid rgba(37,99,235,.12);
+  }
+  .loop-wheel::before{
+    content:"";
+    position:absolute;inset:14px;border-radius:50%;
+    border:2px dashed rgba(37,99,235,.35);
+    animation:rotate 14s linear infinite;
+  }
+  @keyframes rotate{to{transform:rotate(360deg)}}
+  .loop-center{
+    position:absolute;inset:56px;border-radius:50%;
+    background:#fff;display:grid;place-items:center;text-align:center;
+    box-shadow:0 10px 26px rgba(37,99,235,.12);
+    font-size:12px;font-weight:800;color:#1e3a8a;padding:12px;
+  }
+  .orbit{
+    position:absolute;width:56px;height:56px;border-radius:16px;background:#fff;border:1px solid #dbeafe;
+    display:grid;place-items:center;color:var(--blue);font-size:10px;font-weight:900;text-align:center;padding:6px;
+    box-shadow:0 7px 18px rgba(37,99,235,.08);
+  }
+  .orbit.o1{top:-16px;left:76px}
+  .orbit.o2{right:-18px;top:75px}
+  .orbit.o3{bottom:-18px;left:76px}
+  .orbit.o4{left:-18px;top:75px}
+
+  /* ---------- Finding ---------- */
+  .finding-card{
+    padding:21px;
+    border:1px solid var(--line);
+    border-left:5px solid #f59e0b;
+    border-radius:18px;
+    background:#fff;
+  }
+  .finding-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+  .label{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 9px;border-radius:999px;font-size:11px;font-weight:900
+  }
+  .label.check{background:var(--amber-soft);color:#b45309}
+  .label.real{background:var(--green-soft);color:#15803d}
+  .finding-card h3{margin:8px 0 10px;font-size:19px}
+  .finding-card p{margin:7px 0;color:#475467}
+  .info-btn{
+    width:36px;height:36px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;color:#475467
+  }
+  .info-panel{
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height .35s ease,opacity .3s ease,margin .3s ease;
+    margin-top:0;
+  }
+  .info-panel.open{max-height:180px;opacity:1;margin-top:12px}
+  .info-panel-inner{
+    padding:14px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);color:#475467;font-size:14px
+  }
+  .finding-anatomy{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px
+  }
+  .anatomy{
+    padding:14px;border-radius:14px;background:#f8fafc;border:1px solid var(--line)
+  }
+  .anatomy strong{display:block;font-size:13px}
+  .anatomy span{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+
+  /* ---------- Confidence tabs ---------- */
+  .tabs{margin-top:6px}
+  .tab-buttons{
+    display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line)
+  }
+  .tab-btn{
+    border:0;background:transparent;padding:12px 14px;cursor:pointer;
+    color:#667085;font-weight:900;border-bottom:3px solid transparent
+  }
+  .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+  .tab-panel{display:none;padding-top:16px}
+  .tab-panel.active{display:block}
+  .confidence-card{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:18px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+    background:#fff;
+  }
+  .confidence-card.real{border-left:5px solid var(--green)}
+  .confidence-card.check{border-left:5px solid var(--amber)}
+  .confidence-copy h3{margin:8px 0 8px;font-size:18px}
+  .confidence-copy p{margin:7px 0;color:#475467}
+  .confidence-copy ul{margin:10px 0 0;padding-left:20px}
+  .confidence-copy li{margin:7px 0;color:#475467}
+  .confidence-visual{
+    min-height:220px;border-radius:16px;display:grid;place-items:center;padding:18px
+  }
+  .confidence-card.real .confidence-visual{background:linear-gradient(160deg,#ecfdf3,#f8fffb)}
+  .confidence-card.check .confidence-visual{background:linear-gradient(160deg,#fff7ed,#fffdfa)}
+  .signal{
+    width:170px;height:170px;border-radius:50%;position:relative;display:grid;place-items:center
+  }
+  .signal::before,.signal::after{
+    content:"";position:absolute;border-radius:50%;border:1px solid currentColor;opacity:.2;animation:pulse 2.8s ease-out infinite
+  }
+  .signal::before{inset:15px}
+  .signal::after{inset:-5px;animation-delay:.5s}
+  @keyframes pulse{
+    0%{transform:scale(.84);opacity:.3}
+    70%{transform:scale(1.06);opacity:.08}
+    100%{transform:scale(1.12);opacity:0}
+  }
+  .signal.real{background:rgba(22,163,74,.12);color:var(--green)}
+  .signal.check{background:rgba(217,119,6,.11);color:var(--amber)}
+  .signal-core{
+    width:94px;height:94px;border-radius:50%;background:#fff;display:grid;place-items:center;
+    box-shadow:0 14px 30px rgba(16,24,40,.08);font-size:38px;font-weight:900
+  }
+
+  /* ---------- Action cards ---------- */
+  .action-card{
+    position:relative;
+    overflow:hidden;
+    padding:19px;
+    border:1px solid var(--line);
+    border-radius:17px;
+    background:#fff;
+    min-height:180px;
+    transition:.22s ease;
+  }
+  .action-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(16,24,40,.07)}
+  .action-card::after{
+    content:"";position:absolute;inset:auto 0 0 0;height:4px;background:#e5e7eb
+  }
+  .action-card.yes::after{background:var(--green)}
+  .action-card.no::after{background:var(--red)}
+  .action-card.keep::after{background:var(--amber)}
+  .action-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .action-icon{
+    width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-weight:900
+  }
+  .yes .action-icon{background:var(--green-soft);color:var(--green)}
+  .no .action-icon{background:var(--red-soft);color:var(--red)}
+  .keep .action-icon{background:var(--amber-soft);color:var(--amber)}
+  .action-card h3{margin:0;font-size:16px}
+  .action-card p{margin:0;color:var(--muted);font-size:14px}
+
+  /* ---------- Decision ---------- */
+  .decision-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+  }
+  .decision-card{
+    padding:17px;border-radius:16px;border:1px solid var(--line);background:#fff
+  }
+  .decision-card .q{color:var(--muted);font-size:12px;min-height:42px}
+  .decision-card .a{margin-top:12px;font-weight:900}
+  .pill{
+    display:inline-flex;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900
+  }
+  .pill.no{background:var(--red-soft);color:#be123c}
+  .pill.keep{background:#eef2ff;color:#4338ca}
+  .pill.real{background:var(--green-soft);color:#15803d}
+  .pill.check{background:var(--amber-soft);color:#b45309}
+
+  /* ---------- Wrong place ---------- */
+  .wrong-flow{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px
+  }
+  .wrong-step{
+    padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff;position:relative
+  }
+  .wrong-step::after{
+    content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);color:#98a2b3;font-weight:900
+  }
+  .wrong-step:last-child::after{display:none}
+  .wrong-step .num{
+    width:31px;height:31px;border-radius:9px;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:900;margin-bottom:10px
+  }
+  .wrong-step strong{display:block}
+  .wrong-step span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+
+  /* ---------- Impact / KT visual ---------- */
+  .impact-layout{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px
+  }
+  .impact-card{
+    padding:20px;border:1px solid var(--line);border-radius:17px;background:#fff
+  }
+  .impact-bars{display:grid;gap:10px;margin-top:16px}
+  .impact-row{display:grid;grid-template-columns:75px 1fr 36px;align-items:center;gap:10px;font-size:12px}
+  .bar{height:9px;border-radius:99px;background:#eef2f6;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:inherit}
+  .impact-row.critical i{width:100%;background:#ef4444}
+  .impact-row.high i{width:78%;background:#f97316}
+  .impact-row.medium i{width:56%;background:#f59e0b}
+  .impact-row.low i{width:34%;background:#60a5fa}
+  .kt-path{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px
+  }
+  .kt-step{padding:8px 10px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);font-size:12px;font-weight:800}
+  .kt-arrow{color:#98a2b3;font-weight:900}
+
+  /* ---------- Feedback ---------- */
+  .feedback-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .feedback{
+    padding:20px;border-radius:17px;border:1px solid var(--line);position:relative;overflow:hidden
+  }
+  .feedback.bad{background:#fffafa;border-color:#fecaca}
+  .feedback.good{background:#f7fff9;border-color:#bbf7d0}
+  .feedback h3{margin:0 0 9px;font-size:16px}
+  .feedback .quote{color:#475467;font-style:italic}
+  .feedback-meter{
+    margin-top:18px;height:9px;border-radius:99px;background:rgba(16,24,40,.07);overflow:hidden
+  }
+  .feedback-meter i{display:block;height:100%;border-radius:inherit}
+  .feedback.bad .feedback-meter i{width:22%;background:#ef4444}
+  .feedback.good .feedback-meter i{width:92%;background:#22c55e}
+  .feedback small{display:block;margin-top:7px;color:var(--muted)}
+
+  /* ---------- Reviewer / dashboard illustration ---------- */
+  .review-layout{
+    display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch
+  }
+  .review-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .review-card{
+    padding:16px;border-radius:15px;border:1px solid var(--line);background:#fff
+  }
+  .review-card strong{display:block;font-size:14px}
+  .review-card span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+  .dashboard-visual{
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    background:#f8fafc;
+  }
+  .dash-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+  .dash-top strong{font-size:13px}
+  .dash-dots{display:flex;gap:5px}
+  .dash-dots i{width:7px;height:7px;border-radius:50%;background:#cbd5e1}
+  .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .dash-stat{padding:11px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+  .dash-stat strong{display:block;font-size:18px}
+  .dash-stat span{font-size:10px;color:var(--muted)}
+  .chart{
+    margin-top:12px;height:140px;border-radius:14px;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:flex-end;gap:10px;padding:16px
+  }
+  .chart i{
+    flex:1;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#60a5fa,#2563eb);
+    transform-origin:bottom;animation:grow 1.2s ease both
+  }
+  .chart i:nth-child(1){height:38%}.chart i:nth-child(2){height:62%}.chart i:nth-child(3){height:48%}
+  .chart i:nth-child(4){height:82%}.chart i:nth-child(5){height:70%}.chart i:nth-child(6){height:92%}
+  @keyframes grow{from{transform:scaleY(.08)}to{transform:scaleY(1)}}
+
+  /* ---------- Workflow ---------- */
+  .workflow{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:10px;
+  }
+  .workflow::before{
+    content:"";position:absolute;left:5%;right:5%;top:31px;height:2px;background:#e6ebf2;z-index:0
+  }
+  .workflow-step{position:relative;z-index:1;text-align:center}
+  .workflow-step .n{
+    width:42px;height:42px;border-radius:50%;margin:0 auto 10px;
+    display:grid;place-items:center;background:#fff;border:2px solid var(--blue);color:var(--blue);font-weight:900;
+    transition:.2s ease;
+  }
+  .workflow-step:hover .n{background:var(--blue);color:#fff;transform:scale(1.06)}
+  .workflow-step strong{display:block;font-size:12px}
+  .workflow-step span{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+
+  /* ---------- Principles ---------- */
+  .principles{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px
+  }
+  .principle{
+    padding:16px;border:1px solid var(--line);border-radius:15px;background:#fff
+  }
+  .principle strong{display:block;font-size:13px}
+  .principle span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+
+  /* ---------- Outcomes ---------- */
+  .outcome-wrap{
+    display:grid;grid-template-columns:1fr .8fr;gap:18px;align-items:center
+  }
+  .outcomes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .outcome{
+    padding:16px;border-radius:15px;background:#fff;border:1px solid var(--line);border-top:3px solid var(--blue);font-size:13px
+  }
+  .outcome-visual{
+    min-height:310px;display:grid;place-items:center;border-radius:18px;
+    background:linear-gradient(160deg,#eff6ff,#f8fafc);border:1px solid #dbeafe
+  }
+  .target{
+    width:220px;height:220px;border-radius:50%;position:relative;
+    background:
+      radial-gradient(circle,#fff 0 20%,#dbeafe 21% 39%,#fff 40% 58%,#bfdbfe 59% 78%,#fff 79%);
+    box-shadow:inset 0 0 0 1px #dbeafe,0 20px 34px rgba(37,99,235,.1);
+  }
+  .target::after{
+    content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:var(--green);font-size:42px;font-weight:900
+  }
+  .spark{
+    position:absolute;width:12px;height:12px;border-radius:50%;background:#60a5fa;box-shadow:0 0 18px #60a5fa;
+    animation:spark 3s ease-in-out infinite
+  }
+  .spark.s1{top:20px;right:12px}.spark.s2{left:-10px;bottom:52px;animation-delay:.6s}.spark.s3{right:-16px;bottom:62px;animation-delay:1.2s}
+  @keyframes spark{0%,100%{transform:scale(.7);opacity:.4}50%{transform:scale(1.25);opacity:1}}
+
+  /* ---------- Reveal ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .6s ease,transform .6s ease;
+  }
+  .reveal.visible{opacity:1;transform:none}
+  .reveal.delay-1{transition-delay:.08s}
+  .reveal.delay-2{transition-delay:.16s}
+  .reveal.delay-3{transition-delay:.24s}
+
+  .back-to-top{
+    position:fixed;right:20px;bottom:20px;z-index:950;
+    width:44px;height:44px;border-radius:13px;border:1px solid var(--line);
+    background:#fff;box-shadow:0 12px 28px rgba(16,24,40,.12);cursor:pointer;color:var(--blue);
+    opacity:0;pointer-events:none;transform:translateY(10px);transition:.2s ease
+  }
+  .back-to-top.show{opacity:1;pointer-events:auto;transform:none}
+
+  .footer{
+    max-width:var(--max);margin:28px auto 0;text-align:center;color:#98a2b3;font-size:12px
+  }
+
+  /* ---------- Responsive ---------- */
+  @media(max-width:1100px){
+    .desktop-nav{display:none}
+    .menu-btn{display:grid}
+    .hero{min-height:0;padding:42px}
+    .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .process-layout,.confidence-card,.review-layout,.outcome-wrap{grid-template-columns:1fr}
+    .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .workflow{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+    .workflow::before{display:none}
+    .principles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+
+  @media(max-width:760px){
+    main{padding:18px 14px 50px}
+    .nav-wrap{padding:10px 14px}
+    .role-chip{display:none}
+    .hero{padding:26px 20px;border-radius:22px}
+    .hero h1{font-size:clamp(36px,12vw,50px)}
+    .hero p{font-size:15px}
+
+    .scanner{height:230px}
+    .magnifier{width:100px;height:100px;border-width:13px}
+    .section{padding:20px 16px;border-radius:18px}
+    .section-head{flex-direction:column;gap:10px}
+    .title-line{align-items:flex-start}
+    .section-no{width:32px;height:32px;flex-basis:32px}
+    .section h2{font-size:20px}
+    .section-sub{margin-left:44px}
+    .grid-2,.grid-3,.grid-4,.feedback-grid,.impact-layout{grid-template-columns:1fr}
+    .process-flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .process-node:nth-child(2n)::after{display:none}
+    .finding-head{flex-direction:column}
+    .finding-anatomy{grid-template-columns:1fr 1fr}
+    .decision-grid{grid-template-columns:1fr 1fr}
+    .wrong-flow{grid-template-columns:1fr}
+    .wrong-step::after{content:"↓";right:auto;left:50%;top:auto;bottom:-18px;transform:translateX(-50%)}
+    .review-cards{grid-template-columns:1fr}
+    .workflow{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .principles{grid-template-columns:1fr}
+    .outcomes{grid-template-columns:1fr}
+  }
+
+  @media(max-width:500px){
+    .brand span{display:none}
+    .metrics{grid-template-columns:1fr 1fr}
+    .metric{padding:13px}
+    .metric strong{font-size:20px}
+    .metric span{font-size:10px}
+    .hero-actions{display:grid;grid-template-columns:1fr}
+    .btn{justify-content:center}
+    .scan-grid{grid-template-columns:1fr}
+    .scan-card:nth-child(n+3){display:none}
+    .finding-anatomy,.decision-grid{grid-template-columns:1fr}
+    .tab-buttons{display:grid;grid-template-columns:1fr 1fr}
+    .tab-btn{padding:11px 8px;font-size:12px}
+    .confidence-visual{min-height:190px}
+    .dash-stats{grid-template-columns:1fr}
+    .workflow{grid-template-columns:1fr}
+  }
+
+  @media(max-width:360px){
+    .metrics{grid-template-columns:1fr}
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    .site-header,.drawer,.drawer-backdrop,.back-to-top,.hero-actions,.menu-btn{display:none!important}
+    body{background:#fff}
+    main{padding:0}
+    .hero,.section{box-shadow:none}
+    .hero{min-height:0;grid-template-columns:1fr;padding:28px}
+    .hero-visual{display:none}
+    .section{break-inside:avoid}
+    .reveal{opacity:1!important;transform:none!important}
+    .tab-buttons{display:none}
+    .tab-panel{display:block!important;padding-top:12px}
+    .tab-panel+.tab-panel{margin-top:12px}
+    .confidence-card{grid-template-columns:1fr}
+    .confidence-visual{display:none}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+</style>
+
+<style>
+/* Refined single-page visual treatment:
+   illustrations are decorative/integrated, never separate content columns. */
+
+.hero{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,390px);
+  align-items:end;
+  gap:28px;
+}
+.hero-copy{max-width:900px;min-width:0}
+.hero-decor{
+  position:relative;
+  right:auto;
+  bottom:auto;
+  width:100%;
+  height:190px;
+  pointer-events:none;
+  opacity:.95;
+  z-index:1;
+}
+.hero-decor .audit-panel{
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:100%;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.13);
+  backdrop-filter:blur(12px);
+  box-shadow:0 18px 36px rgba(0,0,0,.14);
+}
+.hero-decor .audit-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,.06);
+}
+.hero-decor .audit-row + .audit-row{margin-top:8px}
+.hero-decor .audit-dot{
+  width:9px;height:9px;border-radius:50%;flex:0 0 9px;
+}
+.hero-decor .audit-row strong{font-size:11px}
+.hero-decor .audit-row span{font-size:10px;color:#cbd5e1;margin-left:auto}
+.hero-decor .audit-row.real .audit-dot{background:#22c55e}
+.hero-decor .audit-row.check .audit-dot{background:#f59e0b}
+.hero-decor .audit-row.fix .audit-dot{background:#60a5fa}
+
+.process-layout,
+.review-layout,
+.outcome-wrap{
+  display:block !important;
+}
+.process-flow{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.loop-visual,
+.outcome-visual{
+  display:none !important;
+}
+
+/* Keep confidence content full width; visuals become inline status badges only. */
+.confidence-card{
+  grid-template-columns:1fr !important;
+}
+.confidence-visual{display:none !important}
+.confidence-copy{
+  position:relative;
+}
+.confidence-copy::after{
+  position:absolute;
+  right:0;
+  top:0;
+  width:40px;height:40px;
+  border-radius:12px;
+  display:grid;place-items:center;
+  font-weight:900;
+  font-size:18px;
+}
+.confidence-card.real .confidence-copy::after{
+  content:"✓";
+  background:var(--green-soft);
+  color:var(--green);
+}
+.confidence-card.check .confidence-copy::after{
+  content:"?";
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+/* Inline dashboard summary instead of a separate illustration block. */
+.inline-dashboard{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.inline-stat{
+  padding:14px 15px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#fbfdff);
+}
+.inline-stat strong{
+  display:block;
+  font-size:20px;
+  line-height:1.1;
+}
+.inline-stat span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* Small decorative accent that sits inside sections instead of taking layout space. */
+.section{
+  position:relative;
+  overflow:hidden;
+}
+.section::after{
+  content:"";
+  position:absolute;
+  right:-80px;
+  top:-80px;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.055),rgba(37,99,235,0) 68%);
+  pointer-events:none;
+}
+
+/* Remove old large circular illustrations completely */
+.loop-wheel,
+.target,
+.signal{
+  display:none !important;
+}
+
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .hero-decor{
+    position:relative;
+    right:auto;
+    bottom:auto;
+    width:100%;
+    height:auto;
+    margin-top:24px;
+  }
+  .hero-decor .audit-panel{
+    position:relative;
+  }
+}
+@media(max-width:760px){
+  .process-flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inline-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:500px){
+  .hero-decor .audit-row span{display:none}
+  .inline-dashboard{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+/* Confidence labels: always visible side-by-side instead of tabs */
+.confidence-compare{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  margin-top:16px;
+}
+.confidence-side{
+  padding:22px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.confidence-side::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:5px;
+}
+.confidence-side.real-side::before{background:var(--green)}
+.confidence-side.check-side::before{background:var(--amber)}
+.confidence-side-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.mini-status{
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.real-mini{background:var(--green-soft);color:#15803d}
+.check-mini{background:var(--amber-soft);color:#b45309}
+.confidence-side h3{
+  margin:13px 0 8px;
+  font-size:18px;
+}
+.confidence-side p{
+  margin:8px 0;
+  color:#475467;
+}
+.confidence-side ul{
+  margin:10px 0 16px;
+  padding-left:20px;
+}
+.confidence-side li{
+  margin:7px 0;
+  color:#475467;
+}
+.confidence-action{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  margin-top:10px;
+  padding:12px 13px;
+  border-radius:12px;
+  font-size:13px;
+}
+.confidence-action strong{font-size:12px}
+.real-action{background:var(--green-soft);color:#166534}
+.neutral-action{background:#f8fafc;color:#475467;border:1px solid var(--line)}
+.check-action{background:var(--blue-soft);color:#1e40af}
+.no-action{background:var(--red-soft);color:#9f1239}
+
+@media(max-width:760px){
+  .confidence-compare{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+.desktop-sidebar{
+  position:fixed; left:18px; top:18px; bottom:18px; width:250px; z-index:940;
+  background:rgba(255,255,255,.96); backdrop-filter:blur(14px);
+  border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 18px 42px rgba(16,24,40,.12);
+  overflow:hidden; transition:width .26s ease;
+}
+.desktop-sidebar.collapsed{width:70px}
+.sidebar-inner{height:100%;display:flex;flex-direction:column}
+.sidebar-top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px;border-bottom:1px solid var(--line);min-height:64px
+}
+.sidebar-title{display:flex;align-items:center;gap:10px;min-width:0;white-space:nowrap;overflow:hidden}
+.sidebar-title .mini-logo{
+  width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#111827,#2563eb);color:#fff;font-size:11px;font-weight:900
+}
+.sidebar-title-text{transition:opacity .18s ease,width .18s ease}
+.sidebar-title-text strong{display:block;font-size:13px}
+.sidebar-title-text span{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+.sidebar-toggle{
+  width:34px;height:34px;flex:0 0 34px;border:1px solid var(--line);border-radius:10px;
+  background:#fff;color:#475467;cursor:pointer;display:grid;place-items:center;transition:.2s ease
+}
+.sidebar-toggle:hover{background:var(--blue-soft);color:var(--blue)}
+.sidebar-scroll{padding:12px 10px 16px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.sidebar-group + .sidebar-group{margin-top:16px}
+.sidebar-group-label{
+  padding:0 10px 7px;color:#98a2b3;font-size:10px;font-weight:900;
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden
+}
+.sidebar-link{
+  display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 10px;margin:3px 0;
+  border-radius:11px;color:#475467;font-size:12px;font-weight:800;white-space:nowrap;
+  overflow:hidden;transition:.18s ease
+}
+.sidebar-link:hover,.sidebar-link.active{background:var(--blue-soft);color:var(--blue)}
+.sidebar-link .side-num{
+  width:28px;height:28px;flex:0 0 28px;border-radius:8px;display:grid;place-items:center;
+  background:#f2f4f7;color:#667085;font-size:10px;font-weight:900
+}
+.sidebar-link.active .side-num{background:#dbeafe;color:var(--blue)}
+.sidebar-link .side-text{overflow:hidden;text-overflow:ellipsis;transition:opacity .18s ease}
+.desktop-sidebar.collapsed .sidebar-title-text,
+.desktop-sidebar.collapsed .sidebar-group-label,
+.desktop-sidebar.collapsed .side-text{opacity:0;width:0;pointer-events:none}
+.desktop-sidebar.collapsed .sidebar-title{display:none}
+.desktop-sidebar.collapsed .sidebar-top{justify-content:center;padding-left:8px;padding-right:8px}
+.desktop-sidebar.collapsed .sidebar-toggle{transform:rotate(180deg)}
+.desktop-sidebar.collapsed .sidebar-link{justify-content:center;padding-left:8px;padding-right:8px}
+.has-desktop-sidebar main{transition:padding-left .26s ease}
+
+@media(min-width:1181px){
+  body.has-desktop-sidebar main{padding-left:292px}
+  body.has-desktop-sidebar.sidebar-collapsed main{padding-left:112px}
+  .site-header .nav-wrap{max-width:none;padding-left:28px;padding-right:28px}
+}
+@media(max-width:1180px){
+  .desktop-sidebar{display:none}
+  .menu-btn{
+    display:grid;position:fixed;top:14px;right:14px;z-index:1100;
+    box-shadow:0 10px 28px rgba(15,23,42,.16)
+  }
+  body.has-desktop-sidebar main,
+  body.has-desktop-sidebar.sidebar-collapsed main{padding-left:22px}
+}
+@media(max-width:760px){
+  body.has-desktop-sidebar main,
+  body.has-desktop-sidebar.sidebar-collapsed main{padding-left:14px}
+}
+
+/* Floating navigation used when the desktop sidebar is hidden */
+.responsive-header{display:none}
+@media(max-width:1180px){
+  .responsive-header{
+    position:sticky;
+    top:10px;
+    z-index:1100;
+    width:calc(100% - 28px);
+    max-width:var(--max);
+    min-height:66px;
+    margin:10px auto 0;
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    background:rgba(255,255,255,.94);
+    border:1px solid rgba(228,231,236,.95);
+    border-radius:16px;
+    box-shadow:0 14px 36px rgba(15,23,42,.12);
+    backdrop-filter:blur(16px);
+  }
+  .responsive-header .brand{flex:1}
+  .responsive-header .header-actions{flex:0 0 auto}
+  .responsive-header .role-chip{display:inline-flex}
+  .responsive-header .menu-btn{
+    position:static;
+    display:grid;
+    box-shadow:none;
+  }
+}
+@media(max-width:600px){
+  .responsive-header{width:calc(100% - 20px);padding:9px 10px;top:8px}
+  .responsive-header .role-chip{display:none}
+  .responsive-header .brand strong{font-size:13px}
+  .responsive-header .brand span{font-size:10px}
+  .responsive-header .logo-placeholder{width:38px;height:38px;flex-basis:38px}
+}
+@media print{.responsive-header{display:none!important}}
+</style>
+
+</head>
+<body class="has-desktop-sidebar">
+<div class="page">
+
+  <header class="responsive-header" aria-label="Mobile header">
+    <a class="brand" href="#top" aria-label="Feluda SOP home">
+      <div class="logo-placeholder">LOGO</div>
+      <div>
+        <strong>Feluda Website Audit Tool</strong>
+        <span>Internal SOP · Builder & Reviewer teams</span>
+      </div>
+    </a>
+    <div class="header-actions">
+      <span class="role-chip">Builder & Reviewer</span>
+      <button class="menu-btn" id="menuBtn" aria-label="Open sidebar menu" aria-expanded="false" aria-controls="drawer">☰</button>
+    </div>
+  </header>
+
+<aside class="desktop-sidebar" id="desktopSidebar" aria-label="Feluda section navigation">
+  <div class="sidebar-inner">
+    <div class="sidebar-top">
+      <div class="sidebar-title">
+        <div class="mini-logo">F</div>
+        <div class="sidebar-title-text">
+          <strong>Feluda SOP</strong>
+          <span>Quick navigation</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" aria-expanded="true">‹</button>
+    </div>
+
+    <div class="sidebar-scroll">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Start here</div>
+        <a class="sidebar-link" href="#purpose"><span class="side-num">01</span><span class="side-text">Purpose & scope</span></a>
+        <a class="sidebar-link" href="#process"><span class="side-num">02</span><span class="side-text">Audit process</span></a>
+        <a class="sidebar-link" href="#finding"><span class="side-num">03</span><span class="side-text">Understanding findings</span></a>
+        <a class="sidebar-link" href="#confidence"><span class="side-num">04</span><span class="side-text">Confidence labels</span></a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Builder actions</div>
+        <a class="sidebar-link" href="#actions"><span class="side-num">05</span><span class="side-text">Action options</span></a>
+        <a class="sidebar-link" href="#decision"><span class="side-num">06</span><span class="side-text">Decision guide</span></a>
+        <a class="sidebar-link" href="#wrongplace"><span class="side-num">07</span><span class="side-text">Wrong place?</span></a>
+        <a class="sidebar-link" href="#impact"><span class="side-num">08</span><span class="side-text">Impact & KT</span></a>
+        <a class="sidebar-link" href="#feedback"><span class="side-num">09</span><span class="side-text">Feedback best practices</span></a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Improve & learn</div>
+        <a class="sidebar-link" href="#reviewer"><span class="side-num">10</span><span class="side-text">Feluda improvement</span></a>
+        <a class="sidebar-link" href="#dashboard"><span class="side-num">11</span><span class="side-text">Dashboards & learning</span></a>
+        <a class="sidebar-link" href="#workflow"><span class="side-num">12</span><span class="side-text">Builder workflow</span></a>
+        <a class="sidebar-link" href="#principles"><span class="side-num">13</span><span class="side-text">Do's, don'ts & principles</span></a>
+        <a class="sidebar-link" href="#outcomes"><span class="side-num">14</span><span class="side-text">Expected outcome</span></a>
+      </div>
+    </div>
+  </div>
+</aside>
+
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="Mobile navigation">
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button>
+    </div>
+    <nav class="drawer-nav">
+      <div class="drawer-group">
+        <div class="drawer-group-label">Start here</div>
+        <a href="#purpose"><span class="drawer-num">01</span>Purpose & scope</a>
+        <a href="#process"><span class="drawer-num">02</span>Audit process</a>
+        <a href="#finding"><span class="drawer-num">03</span>Understanding findings</a>
+        <a href="#confidence"><span class="drawer-num">04</span>Confidence labels</a>
+      </div>
+      <div class="drawer-group">
+        <div class="drawer-group-label">Builder actions</div>
+        <a href="#actions"><span class="drawer-num">05</span>Action options</a>
+        <a href="#decision"><span class="drawer-num">06</span>Decision guide</a>
+        <a href="#wrongplace"><span class="drawer-num">07</span>Wrong place?</a>
+        <a href="#impact"><span class="drawer-num">08</span>Impact & KT</a>
+        <a href="#feedback"><span class="drawer-num">09</span>Feedback best practices</a>
+      </div>
+      <div class="drawer-group">
+        <div class="drawer-group-label">Improve & learn</div>
+        <a href="#reviewer"><span class="drawer-num">10</span>Feluda improvement</a>
+        <a href="#dashboard"><span class="drawer-num">11</span>Dashboards & learning</a>
+        <a href="#workflow"><span class="drawer-num">12</span>Builder workflow</a>
+        <a href="#principles"><span class="drawer-num">13</span>Do's, don'ts & principles</a>
+        <a href="#outcomes"><span class="drawer-num">14</span>Expected outcome</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main id="top">
+    <div class="container">
+
+      <section class="hero reveal">
+        <div class="hero-copy">
+          <span class="eyebrow">Internal SOP · Working reference</span>
+          <h1>Feluda Website Audit Tool</h1>
+          <p>Feluda is our automated “detective” for every website we build — it audits builds against standardized quality checkpoints and gives builders clear, simple-language findings to act on.</p>
+
+          <div class="hero-actions">
+            <a class="btn primary" href="#workflow">View builder workflow ↓</a>
+            <a class="btn ghost" href="#confidence">Understand confidence labels</a>
+          </div>
+
+          <div class="metrics">
+            <div class="metric"><strong class="counter" data-target="159">0</strong><span>Checkpoints audited</span></div>
+            <div class="metric"><strong class="counter" data-target="2">0</strong><span>Confidence labels</span></div>
+            <div class="metric"><strong>1–3 days</strong><span>Improvement turnaround</span></div>
+            <div class="metric"><strong class="counter" data-target="5">0</strong><span>Feedback actions</span></div>
+          </div>
+        </div>
+        <div class="hero-decor" aria-hidden="true">
+          <div class="audit-panel">
+            <div class="audit-row real"><i class="audit-dot"></i><strong>Real Issue</strong><span>High confidence</span></div>
+            <div class="audit-row check"><i class="audit-dot"></i><strong>Need Your Check</strong><span>Validate first</span></div>
+            <div class="audit-row fix"><i class="audit-dot"></i><strong>Suggested Fix</strong><span>Clear next action</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="purpose">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">1</span><h2>Purpose & scope</h2></div>
+            <p class="section-sub">Why Feluda exists, and what it evaluates.</p>
+          </div>
+          <span class="team-tag both">Both</span>
+        </div>
+
+        <div class="grid-4">
+          <article class="card reveal delay-1"><div class="icon-box">✓</div><h3>Audit & identify</h3><p>Runs automated checks and flags issues, improvements and critical points that need attention.</p></article>
+          <article class="card reveal delay-1"><div class="icon-box">→</div><h3>Recommend</h3><p>Gives builders clear recommendations and validates against client requirements.</p></article>
+          <article class="card reveal delay-2"><div class="icon-box">↻</div><h3>Learn & improve</h3><p>Captures builder feedback to continuously improve its own audit logic.</p></article>
+          <article class="card reveal delay-2"><div class="icon-box">↗</div><h3>Develop builders</h3><p>Provides individual performance insight and learning opportunities.</p></article>
+        </div>
+
+        <div class="callout reveal delay-3"><strong>Feluda cross-references applicable source material:</strong> DCT customer intake information, customer attachments, Zylo or manually prepared copy documents, Figma designs/style guides, and other website specifications.</div>
+      </section>
+
+      <section class="section reveal" id="process">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">2</span><h2>Feluda audit process</h2></div>
+            <p class="section-sub">End-to-end flow, from project inputs to improvement.</p>
+          </div>
+          <span class="team-tag both">Both</span>
+        </div>
+
+        <div class="process-layout">
+          <div class="process-flow">
+            <div class="process-node reveal"><div class="process-icon">1</div><strong>Project inputs</strong><span>Website + reference material</span></div>
+            <div class="process-node reveal delay-1"><div class="process-icon">2</div><strong>Run audit</strong><span>Evaluate applicable checkpoints</span></div>
+            <div class="process-node reveal delay-2"><div class="process-icon">3</div><strong>Findings</strong><span>Only identified findings are shown</span></div>
+            <div class="process-node reveal delay-3"><div class="process-icon">4</div><strong>Builder review</strong><span>Validate each finding</span></div>
+            <div class="process-node reveal"><div class="process-icon">5</div><strong>Fix / justify</strong><span>Take the correct action</span></div>
+            <div class="process-node reveal delay-1"><div class="process-icon">6</div><strong>Feedback</strong><span>Explain exceptions or errors</span></div>
+            <div class="process-node reveal delay-2"><div class="process-icon">7</div><strong>Reviewer analysis</strong><span>Spot patterns and gaps</span></div>
+            <div class="process-node reveal delay-3"><div class="process-icon">8</div><strong>Feluda improves</strong><span>Logic and guidance get better</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="finding">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">3</span><h2>Understanding a Feluda finding</h2></div>
+            <p class="section-sub">Every finding follows the same basic structure.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="finding-card reveal">
+          <div class="finding-head">
+            <div>
+              <span class="label check">● Need Your Check</span>
+              <h3>Hero heading exceeds recommended character limit</h3>
+            </div>
+            <button class="info-btn" id="findingInfoBtn" aria-expanded="false" aria-controls="findingInfo">ⓘ</button>
+          </div>
+          <p><strong>Suggested fix:</strong> Shorten the hero heading to fit within a single line at standard viewport width.</p>
+          <p><strong>Suggested fix location:</strong> Homepage → Hero section → Heading component.</p>
+          <div class="info-panel" id="findingInfo">
+            <div class="info-panel-inner">Feluda expands the issue description in plain language when the caption and suggested fix are not enough on their own.</div>
+          </div>
+        </div>
+
+        <div class="finding-anatomy">
+          <div class="anatomy reveal delay-1"><strong>Issue caption</strong><span>Immediate understanding of what needs attention.</span></div>
+          <div class="anatomy reveal delay-1"><strong>Suggested fix</strong><span>What should change to resolve it.</span></div>
+          <div class="anatomy reveal delay-2"><strong>Fix location</strong><span>Where the change should be made.</span></div>
+          <div class="anatomy reveal delay-2"><strong>Issue description</strong><span>Why Feluda flagged the issue.</span></div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="confidence">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">4</span><h2>Confidence labels</h2></div>
+            <p class="section-sub">Every finding carries one of two labels — switch tabs to compare.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="callout reveal"><strong>Important:</strong> Confidence is not the final decision. Both labels still require builder review and validation.</div>
+
+        
+        <div class="confidence-compare">
+          <article class="confidence-side real-side reveal">
+            <div class="confidence-side-head">
+              <span class="label real">● Real Issue</span>
+              <span class="mini-status real-mini">High confidence</span>
+            </div>
+            <h3>Feluda believes this is a genuine issue.</h3>
+            <p><strong>Builder action:</strong></p>
+            <ul>
+              <li>Fix the issue on the website.</li>
+              <li>Review the implementation.</li>
+              <li>Select the checkbox to mark it accepted and fixed.</li>
+            </ul>
+            <div class="confidence-action real-action">
+              <strong>Agree?</strong>
+              <span>Fix it and mark it accepted / fixed.</span>
+            </div>
+            <div class="confidence-action neutral-action">
+              <strong>Disagree?</strong>
+              <span>Use <strong>Keep as Is</strong> with a detailed justification.</span>
+            </div>
+          </article>
+
+          <article class="confidence-side check-side reveal delay-1">
+            <div class="confidence-side-head">
+              <span class="label check">● Need Your Check</span>
+              <span class="mini-status check-mini">Human validation</span>
+            </div>
+            <h3>Possible issue — needs human validation.</h3>
+            <p><strong>Common reasons Feluda asks for a check:</strong></p>
+            <ul>
+              <li>The website may have a valid exception.</li>
+              <li>The client may have specifically requested this implementation.</li>
+              <li>The finding may not apply to this website.</li>
+              <li>Feluda may have misread the implementation.</li>
+              <li>It may genuinely need correcting.</li>
+            </ul>
+            <div class="confidence-action check-action">
+              <strong>If it's real</strong>
+              <span>Fix it, then select <strong>Yes, Real</strong>.</span>
+            </div>
+            <div class="confidence-action no-action">
+              <strong>If it's not real</strong>
+              <span>Select <strong>Not an Issue</strong> and explain why.</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section reveal" id="actions">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">5</span><h2>Feluda action options</h2></div>
+            <p class="section-sub">What each builder response actually means.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="grid-3">
+          <article class="action-card yes reveal delay-1">
+            <div class="action-head"><span class="action-icon">✓</span><h3>Yes, Real</h3></div>
+            <p>For <strong>Need Your Check</strong> findings you agree with. Fix the issue — your confirmation also increases Feluda's confidence in that checkpoint.</p>
+          </article>
+          <article class="action-card no reveal delay-2">
+            <div class="action-head"><span class="action-icon">×</span><h3>Not an Issue</h3></div>
+            <p>For <strong>Need Your Check</strong> findings that are incorrect or don't apply. Requires a clear, specific explanation — never a generic comment.</p>
+          </article>
+          <article class="action-card keep reveal delay-3">
+            <div class="action-head"><span class="action-icon">≋</span><h3>Keep as Is</h3></div>
+            <p>For either label, when you intentionally retain the current implementation for a valid business, client, design or process reason.</p>
+          </article>
+        </div>
+
+        <div class="callout success reveal"><strong>Example — mimic website:</strong> If Feluda flags a heading for exceeding the standard character limit but the content must follow the source site, select <strong>Keep as Is</strong> and explain the mimic-site exception.</div>
+      </section>
+
+      <section class="section reveal" id="decision">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">6</span><h2>Not an Issue vs Keep as Is</h2></div>
+            <p class="section-sub">The distinction builders most often mix up.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="decision-grid">
+          <div class="decision-card reveal"><div class="q">Need Your Check finding is simply incorrect</div><div class="a"><span class="pill no">Not an Issue</span></div></div>
+          <div class="decision-card reveal delay-1"><div class="q">Finding is valid, but website intentionally stays unchanged</div><div class="a"><span class="pill keep">Keep as Is</span></div></div>
+          <div class="decision-card reveal delay-2"><div class="q">Marked Real Issue and you agree</div><div class="a"><span class="pill real">Fix + accepted/fixed</span></div></div>
+          <div class="decision-card reveal delay-3"><div class="q">Need Your Check and you agree it's real</div><div class="a"><span class="pill check">Fix + Yes, Real</span></div></div>
+        </div>
+
+        <div class="callout warn"><strong>Non-negotiable:</strong> whenever an issue isn't corrected, provide meaningful justification.</div>
+      </section>
+
+      <section class="section reveal" id="wrongplace">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">7</span><h2>Wrong place?</h2></div>
+            <p class="section-sub">When the issue is right but the fix location isn't.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="wrong-flow">
+          <div class="wrong-step reveal"><div class="num">1</div><strong>Click “Wrong place?”</strong><span>Use it when Feluda found a genuine issue but points to the wrong location.</span></div>
+          <div class="wrong-step reveal delay-1"><div class="num">2</div><strong>Identify the correct location</strong><span>Give the actual page, section, component or element.</span></div>
+          <div class="wrong-step reveal delay-2"><div class="num">3</div><strong>Explain and submit</strong><span>Provide a clear explanation so the guidance can improve.</span></div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="impact">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">8</span><h2>Issue impact & KT documentation</h2></div>
+            <p class="section-sub">Prioritize by impact and use KT when you need the logic behind a checkpoint.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="impact-layout">
+          <div class="impact-card reveal">
+            <h3 style="margin:0">Prioritize by impact</h3>
+            <div class="impact-bars">
+              <div class="impact-row critical"><span>Critical</span><div class="bar"><i></i></div><b>1st</b></div>
+              <div class="impact-row high"><span>High</span><div class="bar"><i></i></div><b>2nd</b></div>
+              <div class="impact-row medium"><span>Medium</span><div class="bar"><i></i></div><b>3rd</b></div>
+              <div class="impact-row low"><span>Low</span><div class="bar"><i></i></div><b>4th</b></div>
+            </div>
+          </div>
+
+          <div class="impact-card reveal delay-1">
+            <h3 style="margin:0">Use KT in this order</h3>
+            <div class="kt-path">
+              <span class="kt-step">Caption</span><span class="kt-arrow">→</span>
+              <span class="kt-step">Fix & location</span><span class="kt-arrow">→</span>
+              <span class="kt-step">Description</span><span class="kt-arrow">→</span>
+              <span class="kt-step">KT if still unclear</span>
+            </div>
+            <p style="color:var(--muted);font-size:13px;margin:16px 0 0">KT explains the reasoning and basis behind the checkpoint when more knowledge is needed before deciding validity.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="feedback">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">9</span><h2>Builder feedback — best practices</h2></div>
+            <p class="section-sub">The single biggest lever for improving Feluda.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="feedback-grid">
+          <div class="feedback bad reveal">
+            <h3 style="color:var(--red)">✕ Weak feedback</h3>
+            <div class="quote">“Not an issue. Verified with TL.”</div>
+            <div class="feedback-meter"><i></i></div>
+            <small>Low value for reviewers and checkpoint improvement</small>
+          </div>
+
+          <div class="feedback good reveal delay-1">
+            <h3 style="color:var(--green)">✓ Better feedback</h3>
+            <div class="quote">“This is a mimic website, so the content intentionally follows the source website. Although the character count exceeds the standard limit, changing it would make the implementation inconsistent with the source. This type of finding should be excluded for mimic websites.”</div>
+            <div class="feedback-meter"><i></i></div>
+            <small>Specific, factual, detailed and actionable</small>
+          </div>
+        </div>
+
+        <div class="callout warn">Avoid generic comments like “Not an issue,” “Verified with TL,” “Checked with mentor,” or “This is intentional.”</div>
+      </section>
+
+      <section class="section reveal" id="reviewer">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">10</span><h2>Feluda improvement process</h2></div>
+            <p class="section-sub">How builder feedback becomes better checkpoints.</p>
+          </div>
+          <span class="team-tag reviewer">Reviewer</span>
+        </div>
+
+        <div class="review-layout">
+          <div class="review-cards">
+            <div class="review-card reveal"><strong>No change</strong><span>Checkpoint is working as intended.</span></div>
+            <div class="review-card reveal delay-1"><strong>Logic correction / enhancement</strong><span>Checkpoint logic is fixed or improved.</span></div>
+            <div class="review-card reveal delay-2"><strong>Better description / fix / location</strong><span>Clarity improvements to the finding itself.</span></div>
+            <div class="review-card reveal delay-3"><strong>Additional exception handling</strong><span>New valid scenarios are taught to the checkpoint.</span></div>
+          </div>
+        </div>
+
+        <div class="callout"><strong>Improvement timeline:</strong> target is approximately 1–3 days after receiving and reviewing valid feedback, wherever feasible.</div>
+      </section>
+
+      <section class="section reveal" id="dashboard">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">11</span><h2>Dashboards, updates & learning</h2></div>
+            <p class="section-sub">Performance visibility, process updates and individual learning.</p>
+          </div>
+          <span class="team-tag both">Both</span>
+        </div>
+
+        <div class="review-layout">
+          <div class="grid-2">
+            <div class="card reveal"><div class="icon-box">▦</div><h3>Reviewer dashboard</h3><p>Consolidates checkpoint-wise feedback, counts, justifications, trends and improvement opportunities.</p></div>
+            <div class="card reveal delay-1"><div class="icon-box">◎</div><h3>Builder dashboard</h3><p>Shows website quality, first-go performance, high-impact findings, strengths and improvement areas.</p></div>
+            <div class="card reveal delay-2"><div class="icon-box">↻</div><h3>Process & knowledge updates</h3><p>Surfaces process changes, Feluda updates, client-specific changes and modified checkpoints.</p></div>
+            <div class="card reveal delay-3"><div class="icon-box">↗</div><h3>Individual learning</h3><p>Provides relevant learning material to help close recurring quality gaps.</p></div>
+          </div>
+          <div class="inline-dashboard reveal delay-2" aria-label="Dashboard summary example">
+            <div class="inline-stat"><strong>92%</strong><span>First-go quality</span></div>
+            <div class="inline-stat"><strong>4</strong><span>High-impact findings</span></div>
+            <div class="inline-stat"><strong>18</strong><span>Resolved findings</span></div>
+            <div class="inline-stat"><strong>1–3d</strong><span>Typical improvement turnaround</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="workflow">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">12</span><h2>Recommended builder workflow</h2></div>
+            <p class="section-sub">The 7 steps to follow on every audit.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="workflow">
+          <div class="workflow-step reveal"><div class="n">1</div><strong>Open report</strong><span>Review all findings</span></div>
+          <div class="workflow-step reveal delay-1"><div class="n">2</div><strong>Prioritize</strong><span>Critical / high first</span></div>
+          <div class="workflow-step reveal delay-2"><div class="n">3</div><strong>Understand</strong><span>Caption, fix, location, KT</span></div>
+          <div class="workflow-step reveal delay-3"><div class="n">4</div><strong>Validate</strong><span>Issue, exception or misread?</span></div>
+          <div class="workflow-step reveal"><div class="n">5</div><strong>Take action</strong><span>Fix, confirm or retain</span></div>
+          <div class="workflow-step reveal delay-1"><div class="n">6</div><strong>Give feedback</strong><span>Be detailed</span></div>
+          <div class="workflow-step reveal delay-2"><div class="n">7</div><strong>Complete audit</strong><span>Every finding handled</span></div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="principles">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">13</span><h2>Builder do's, don'ts & key principles</h2></div>
+            <p class="section-sub">The habits that make Feluda work well for everyone.</p>
+          </div>
+          <span class="team-tag builder">Builder</span>
+        </div>
+
+        <div class="principles">
+          <div class="principle reveal"><strong>Review every finding</strong><span>Don't ignore findings because they're marked Need Your Check.</span></div>
+          <div class="principle reveal delay-1"><strong>Validate against real requirements</strong><span>Website, client requirements and exceptions matter.</span></div>
+          <div class="principle reveal delay-2"><strong>Fix genuine issues</strong><span>Use Yes, Real for confirmed Need Your Check findings.</span></div>
+          <div class="principle reveal"><strong>Explain valid exceptions</strong><span>Keep as Is always needs a meaningful reason.</span></div>
+          <div class="principle reveal delay-1"><strong>Use KT and learning</strong><span>Reduce repeated quality issues over time.</span></div>
+          <div class="principle reveal delay-2"><strong>Improve through feedback</strong><span>Detailed feedback makes Feluda more accurate for everyone.</span></div>
+        </div>
+
+        <div class="callout"><strong>Key principle:</strong> Feluda is an assistant, not a replacement for judgment.</div>
+      </section>
+
+      <section class="section reveal" id="outcomes">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">14</span><h2>Expected outcome</h2></div>
+            <p class="section-sub">What good adoption looks like.</p>
+          </div>
+          <span class="team-tag both">Both</span>
+        </div>
+
+        <div class="outcome-wrap">
+          <div class="outcomes">
+            <div class="outcome reveal">Improved website quality & higher first-go quality</div>
+            <div class="outcome reveal delay-1">Reduced critical and high-impact issues</div>
+            <div class="outcome reveal delay-2">Greater consistency with global & internal standards</div>
+            <div class="outcome reveal delay-3">Better adherence to client requirements</div>
+            <div class="outcome reveal">Faster issue identification and resolution</div>
+            <div class="outcome reveal delay-1">Reduced dependency on mentors for routine validation</div>
+            <div class="outcome reveal delay-2">Continuous improvement of audit logic</div>
+            <div class="outcome reveal delay-3">Stronger, data-driven quality culture</div>
+          </div>
+        </div>
+
+        <div class="callout success"><strong>Feluda's goal is not simply to find mistakes.</strong> It's to help every builder understand, fix, learn and continuously improve website quality.</div>
+      </section>
+
+      <div class="footer">Internal SOP · Feluda Website Audit Tool · For Builder & Reviewer teams</div>
+    </div>
+  </main>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+</div>
+
+<script>
+(() => {
+  const body = document.body;
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const menuBtn = document.getElementById('menuBtn');
+  const drawerClose = document.getElementById('drawerClose');
+
+  function setDrawer(open){
+    drawer.classList.toggle('open', open);
+    backdrop.classList.toggle('show', open);
+    body.classList.toggle('menu-open', open);
+    menuBtn?.setAttribute('aria-expanded', String(open));
+  }
+
+  menuBtn?.addEventListener('click', () => setDrawer(true));
+  drawerClose?.addEventListener('click', () => setDrawer(false));
+  backdrop?.addEventListener('click', () => setDrawer(false));
+
+  document.querySelectorAll('.drawer-nav a').forEach(link => {
+    link.addEventListener('click', () => setDrawer(false));
+  });
+
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') setDrawer(false);
+  });
+
+  // Finding info reveal
+  const infoBtn = document.getElementById('findingInfoBtn');
+  const infoPanel = document.getElementById('findingInfo');
+  infoBtn?.addEventListener('click', () => {
+    const open = infoPanel.classList.toggle('open');
+    infoBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  // Reveal animations
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }else{
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  }
+
+  // Counter animation
+  const counters = [...document.querySelectorAll('.counter')];
+  function animateCounter(el){
+    const target = Number(el.dataset.target || 0);
+    const duration = 900;
+    const start = performance.now();
+    function frame(now){
+      const t = Math.min(1,(now-start)/duration);
+      const eased = 1 - Math.pow(1-t,3);
+      el.textContent = Math.round(target*eased);
+      if(t<1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  const counterObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  },{threshold:.7});
+  counters.forEach(c => counterObserver.observe(c));
+
+  // Scroll spy
+  const allNavLinks = [...document.querySelectorAll('.desktop-nav a, .drawer-nav a')];
+  const ids = [...new Set(allNavLinks.map(a => a.getAttribute('href')).filter(h => h && h.startsWith('#')))];
+  const sections = ids.map(id => document.querySelector(id)).filter(Boolean);
+
+  const spy = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if(!visible) return;
+    const id = '#' + visible.target.id;
+    allNavLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+  }, {rootMargin:'-20% 0px -65% 0px', threshold:[0,.1,.25,.5]});
+  sections.forEach(section => spy.observe(section));
+
+
+  // Desktop collapsible sidebar
+  const desktopSidebar = document.getElementById('desktopSidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+
+  function setSidebarCollapsed(collapsed){
+    desktopSidebar?.classList.toggle('collapsed', collapsed);
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    sidebarToggle?.setAttribute('aria-expanded', String(!collapsed));
+    sidebarToggle?.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    try{ localStorage.setItem('feludaSidebarCollapsed', collapsed ? '1' : '0'); }catch(e){}
+  }
+
+  try{
+    setSidebarCollapsed(localStorage.getItem('feludaSidebarCollapsed') === '1');
+  }catch(e){
+    setSidebarCollapsed(false);
+  }
+
+  sidebarToggle?.addEventListener('click', () => {
+    setSidebarCollapsed(!desktopSidebar.classList.contains('collapsed'));
+  });
+
+  // Desktop sidebar anchor active state
+  const allSidebarLinks = [...document.querySelectorAll('.sidebar-link')];
+  const sidebarIds = [...new Set(allSidebarLinks.map(a => a.getAttribute('href')).filter(Boolean))];
+  const sidebarSections = sidebarIds.map(id => document.querySelector(id)).filter(Boolean);
+
+  const desktopSidebarSpy = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+    if(!visible) return;
+    const id = '#' + visible.target.id;
+    allSidebarLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+  }, {rootMargin:'-22% 0px -68% 0px', threshold:[0,.1,.25,.5]});
+
+  sidebarSections.forEach(section => desktopSidebarSpy.observe(section));
+
+  // Back to top
+  const back = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    back.classList.toggle('show', window.scrollY > 700);
+  }, {passive:true});
+  back?.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+})();
+</script>
+</body>
+</html>
