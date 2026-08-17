@@ -1181,6 +1181,22 @@
 .desktop-sidebar.collapsed .sidebar-link{justify-content:center;padding-left:8px;padding-right:8px}
 .has-desktop-sidebar main{transition:padding-left .26s ease}
 
+.quick-reference-card{
+  padding:26px;border:1px solid #bfd3ff;border-radius:16px;background:#f4f7ff
+}
+.quick-reference-flow{
+  margin:0 0 20px;padding-bottom:20px;border-bottom:1px dashed #bfd3ff;
+  color:#172033;font-size:15px;font-weight:700;line-height:1.8
+}
+.quick-reference-list{margin:0}
+.quick-reference-row{
+  display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;
+  padding:11px 0;border-bottom:1px dashed #bfd3ff
+}
+.quick-reference-row:last-child{border-bottom:0}
+.quick-reference-row dt{color:var(--blue);font-weight:900}
+.quick-reference-row dd{margin:0;color:#172033}
+
 @media(min-width:1181px){
   body.has-desktop-sidebar main{padding-left:292px}
   body.has-desktop-sidebar.sidebar-collapsed main{padding-left:112px}
@@ -1237,6 +1253,8 @@
   .responsive-header .brand strong{font-size:13px}
   .responsive-header .brand span{font-size:10px}
   .responsive-header .logo-placeholder{width:38px;height:38px;flex-basis:38px}
+  .quick-reference-card{padding:18px}
+  .quick-reference-row{grid-template-columns:1fr;gap:3px}
 }
 @media print{.responsive-header{display:none!important}}
 </style>
@@ -1296,7 +1314,8 @@
         <a class="sidebar-link" href="#dashboard"><span class="side-num">11</span><span class="side-text">Dashboards & learning</span></a>
         <a class="sidebar-link" href="#workflow"><span class="side-num">12</span><span class="side-text">Builder workflow</span></a>
         <a class="sidebar-link" href="#principles"><span class="side-num">13</span><span class="side-text">Do's, don'ts & principles</span></a>
-        <a class="sidebar-link" href="#outcomes"><span class="side-num">14</span><span class="side-text">Expected outcome</span></a>
+        <a class="sidebar-link" href="#quick-reference"><span class="side-num">14</span><span class="side-text">Quick reference</span></a>
+        <a class="sidebar-link" href="#outcomes"><span class="side-num">15</span><span class="side-text">Expected outcome</span></a>
       </div>
     </div>
   </div>
@@ -1330,7 +1349,8 @@
         <a href="#dashboard"><span class="drawer-num">11</span>Dashboards & learning</a>
         <a href="#workflow"><span class="drawer-num">12</span>Builder workflow</a>
         <a href="#principles"><span class="drawer-num">13</span>Do's, don'ts & principles</a>
-        <a href="#outcomes"><span class="drawer-num">14</span>Expected outcome</a>
+        <a href="#quick-reference"><span class="drawer-num">14</span>Quick reference</a>
+        <a href="#outcomes"><span class="drawer-num">15</span>Expected outcome</a>
       </div>
     </nav>
   </aside>
@@ -1710,10 +1730,32 @@
         <div class="callout"><strong>Key principle:</strong> Feluda is an assistant, not a replacement for judgment.</div>
       </section>
 
+      <section class="section reveal" id="quick-reference">
+        <div class="section-head">
+          <div class="title-group">
+            <div class="title-line"><span class="section-no">14</span><h2>Quick reference</h2></div>
+            <p class="section-sub">Pin this to your desk.</p>
+          </div>
+          <span class="team-tag both">Both</span>
+        </div>
+
+        <div class="quick-reference-card">
+          <p class="quick-reference-flow">Feluda finds an issue → Builder reviews → Understand the finding → Validate → Fix / Confirm / Reject / Keep as is → Provide detailed feedback → Reviewer analyzes → Feluda improves</p>
+          <dl class="quick-reference-list">
+            <div class="quick-reference-row"><dt>Real Issue</dt><dd>Fix if valid.</dd></div>
+            <div class="quick-reference-row"><dt>Need your check</dt><dd>Validate → Yes, real OR Not an issue.</dd></div>
+            <div class="quick-reference-row"><dt>Keep as is</dt><dd>Always provide a meaningful justification.</dd></div>
+            <div class="quick-reference-row"><dt>Wrong place?</dt><dd>Tell Feluda where the issue should actually be fixed.</dd></div>
+            <div class="quick-reference-row"><dt>KT</dt><dd>Understand the checkpoint logic.</dd></div>
+            <div class="quick-reference-row"><dt>Dashboard</dt><dd>Monitor quality, performance, updates, and learning areas.</dd></div>
+          </dl>
+        </div>
+      </section>
+
       <section class="section reveal" id="outcomes">
         <div class="section-head">
           <div class="title-group">
-            <div class="title-line"><span class="section-no">14</span><h2>Expected outcome</h2></div>
+            <div class="title-line"><span class="section-no">15</span><h2>Expected outcome</h2></div>
             <p class="section-sub">What good adoption looks like.</p>
           </div>
           <span class="team-tag both">Both</span>
